@@ -1,4 +1,0 @@
-C:\Users\Jesus\Documents\Project Mods\MMI-SP-master\obj\Debug\MMI-SP.csproj.AssemblyReference.cache
-C:\Users\Jesus\Documents\Project Mods\MMI-SP-master\obj\Debug\MMI_SP.Properties.Resources.resources
-C:\Users\Jesus\Documents\Project Mods\MMI-SP-master\obj\Debug\MMI-SP.csproj.GenerateResource.cache
-C:\Users\Jesus\Documents\Project Mods\MMI-SP-master\obj\Debug\MMI-SP.csproj.CoreCompileInputs.cache
