@@ -1,72 +1,68 @@
 ﻿using GTA;
 using GTA.Native;
-using LemonUI;
-using LemonUI.Elements;
-using LemonUI.Menus;
 using MMI_SP.Common;
 using MMI_SP.iFruit;
+using NativeUI;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Reflection;
 
 namespace MMI_SP
 {
     class MenuMMI
     {
-        private ObjectPool _menuPool;
-        internal void MenuPoolProcessMenus() { _menuPool.Process(); }
+        // Constantes para cadenas repetidas
+        private const string NotifyChar = "CHAR_CARSITE";
+        private const string NotifyTitle = "Mors Mutual";
+        private const string NoMoneyMsg = "No tienes suficiente dinero.";
+        private const string NoVehiclesMsg = "No tienes vehículos asegurados.";
+        private const string EmptyItemTitle = "Vacío";
 
-        private NativeMenu _mainMenu = new NativeMenu("Mors Mutual", "Menú de seguros");
-        internal NativeMenu Mainmenu { get => _mainMenu; }
+        private MenuPool _menuPool;
+        private UIMenu _mainMenu;
 
-        public bool OpenedFromiFruit { get => _openedFromiFruit; private set => _openedFromiFruit = value; }
-        private bool _openedFromiFruit = false;
+        internal void MenuPoolProcessMenus() { _menuPool.ProcessMenus(); }
 
-        // --- Submenús y opciones del menú principal --- \\
-        // Botón "Asegurar vehículo"
-        NativeItem _itemInsure;
+        public bool OpenedFromiFruit { get; private set; }
 
-        // Submenús (cada uno contiene opciones específicas)
-        NativeMenu _submenuRecover;   // Recuperar vehículos destruidos
-        NativeMenu _submenuCancel;    // Cancelar un seguro
-        NativeMenu _submenuPlate;     // Cambiar matrícula
-        NativeMenu _submenuBring;     // Traer vehículo al jugador
+        // Elementos del menú
+        private UIMenuItem _itemInsure;
+        private UIMenu _submenuRecover;
+        private UIMenu _submenuCancel;
+        private UIMenu _submenuPlate;
+        // private UIMenu _submenuBring;  // Descomentar cuando se reactive Bring
 
-        // Constructor: crea el gestor de menús y registra el menú principal
         public MenuMMI()
         {
-            _menuPool = new ObjectPool();
+            _menuPool = new MenuPool();
+            _mainMenu = new UIMenu("Mors Mutual", "Menú de seguros");
             _menuPool.Add(_mainMenu);
         }
 
-        // Muestra el menú principal
         internal void Show()
         {
             _mainMenu.Visible = true;
         }
-        // --- Submenús y opciones del menú principal --- \\
 
-        /// <summary>
-        /// Creates the menu
-        /// </summary>
         /// <summary>
         /// Construye el menú principal y sus submenús según el contexto (teléfono u oficina).
         /// </summary>
         internal void Create()
         {
-            // Banner desactivado (se deja comentado)
-            // if (System.IO.File.Exists(Config.BannerImage)) _mainMenu.SetBannerType(Config.BannerImage);
+            // Banner (descomentar si se desea usar imagen)
+            // if (System.IO.File.Exists(Config.BannerImage))
+            //     _mainMenu.SetBannerType(Config.BannerImage);
 
-            if (OpenedFromiFruit) {
-                // Abierto desde el teléfono: solo las opciones habilitadas en configuración
+            if (OpenedFromiFruit)
+            {
                 if (Config.CaniFruitInsure) BuildItemInsure();
                 if (Config.CaniFruitCancel) CreateMenuCancel(_mainMenu);
                 if (Config.CaniFruitRecover) CreateMenuRecover(_mainMenu);
                 if (Config.CaniFruitPlate) CreateMenuPlate(_mainMenu);
-                //CreateMenuBring(_mainMenu);
-            } else {
-                // Abierto desde la oficina: todas las opciones excepto traer vehículo
+                // CreateMenuBring(_mainMenu);  // Descomentar cuando se reactive Bring
+            }
+            else
+            {
                 BuildItemInsure();
                 CreateMenuCancel(_mainMenu);
                 CreateMenuRecover(_mainMenu);
@@ -76,47 +72,43 @@ namespace MMI_SP
 
         /// <summary>
         /// Elimina todo el contenido del menú y lo reconstruye.
-        /// Permite refrescar el menú dinámicamente (por ejemplo, al cambiar de vehículo).
         /// </summary>
         internal void Reset(bool iFruit = false)
         {
             OpenedFromiFruit = iFruit;
-            if (_mainMenu != null)
-                _mainMenu.Clear();   // Con LemonUI será _mainMenu.Clear()
+            _mainMenu.Clear();
             Create();
         }
 
-        // Ajusta un submenú para que nunca aparezca vacío y tenga la selección en una posición válida.
-        // Si no hay opciones, muestra un ítem deshabilitado.
-        /// <param name="menu"></param>
-        private void RefreshMenuIndex(NativeMenu menu, string itemDescription)
+        /// <summary>
+        /// Se asegura de que el menú nunca esté vacío y restablece el índice seleccionado.
+        /// </summary>
+        private void EnsureMenuNotEmptyAndResetIndex(UIMenu menu, string itemDescription)
         {
-            if (menu != null)
-            {
-                if (menu.Items.Count <= 0)
-                {
-                    NativeItem emptyItem = new NativeItem("Vacío", itemDescription);
-                    emptyItem.Enabled = false;
-                    menu.Add(emptyItem);
+            if (menu == null) return;
 
-                    menu.SelectedIndex = 0;   // Selecciona el primer item
-                } else {
-                    if (menu.SelectedIndex > menu.Items.Count - 1)
-                        menu.SelectedIndex = 0;
-                }
+            if (menu.MenuItems.Count == 0)
+            {
+                UIMenuItem emptyItem = new UIMenuItem(EmptyItemTitle, itemDescription);
+                emptyItem.Enabled = false;
+                menu.AddItem(emptyItem);
+                menu.CurrentSelection = 0;
+            }
+            else if (menu.CurrentSelection >= menu.MenuItems.Count)
+            {
+                menu.CurrentSelection = 0;
             }
         }
 
         /// <summary>
         /// Construye el botón "Asegurar vehículo" según el estado del último vehículo usado.
-        /// Si no es asegurable o ya está asegurado, el botón aparece deshabilitado.
         /// </summary>
         private void BuildItemInsure()
         {
             Vehicle veh = Game.Player.LastVehicle;
             if (veh == null || !veh.Exists()) return;
 
-            // Limpia el botón anterior si ya existía
+            // Limpia el manejador anterior si ya existía
             if (_itemInsure != null)
             {
                 _itemInsure.Activated -= OnInsureActivated;
@@ -125,189 +117,171 @@ namespace MMI_SP
             int cost = InsuranceManager.GetVehicleInsuranceCost(veh);
             string vehName = Function.Call<string>(Hash.GET_DISPLAY_NAME_FROM_VEHICLE_MODEL, veh.Model.Hash);
 
-            if (!InsuranceManager.IsVehicleInsured(Utils.GetVehicleIdentifier(veh)))
+            if (!InsuranceManager.IsVehicleInsured(Utils.Vehicle.GetVehicleIdentifier(veh)))
             {
                 if (InsuranceManager.IsVehicleInsurable(veh))
                 {
-                    _itemInsure = new NativeItem("Asegurar vehículo", $"Coste: {cost}$\n{vehName}");
+                    _itemInsure = new UIMenuItem("Asegurar vehículo", $"Coste: {cost}$\n{vehName}");
                     _itemInsure.Activated += OnInsureActivated;
-                } else {
-                    _itemInsure = new NativeItem("Asegurar vehículo", $"No se puede asegurar este vehículo\n{vehName}");
+                }
+                else
+                {
+                    _itemInsure = new UIMenuItem("Asegurar vehículo", $"No se puede asegurar este vehículo\n{vehName}");
                     _itemInsure.Enabled = false;
                 }
-            } else {
-                _itemInsure = new NativeItem("Asegurar vehículo", $"Este vehículo ya está asegurado\n{vehName}");
+            }
+            else
+            {
+                _itemInsure = new UIMenuItem("Asegurar vehículo", $"Este vehículo ya está asegurado\n{vehName}");
                 _itemInsure.Enabled = false;
             }
 
-            _mainMenu.Add(_itemInsure);
+            _mainMenu.AddItem(_itemInsure);
         }
-        /// <summary>
-        /// Construye el botón "Asegurar vehículo" según el estado del último vehículo usado.
-        /// Si no es asegurable o ya está asegurado, el botón aparece deshabilitado.
-        /// </summary>
 
-        // Manejador extraído para poder desuscribirlo correctamente
-        private void OnInsureActivated(object sender, EventArgs e)
+        /// <summary>
+        /// Manejador del evento de selección del botón "Asegurar vehículo".
+        /// </summary>
+        private void OnInsureActivated(UIMenu sender, UIMenuItem selectedItem)
         {
             Vehicle lastVeh = Game.Player.LastVehicle;
             if (lastVeh == null || !lastVeh.Exists()) return;
 
-            string vehID = Utils.GetVehicleIdentifier(lastVeh);
+            string vehID = Utils.Vehicle.GetVehicleIdentifier(lastVeh);
             if (InsuranceManager.IsVehicleInsured(vehID)) return;
             if (!InsuranceManager.IsVehicleInsurable(lastVeh)) return;
 
             int cost = InsuranceManager.GetVehicleInsuranceCost(lastVeh);
+            if (!TrySpendMoney(cost)) return;
 
-            if (Game.Player.Money >= cost)
-            {
-                Game.Player.Money -= cost;
-                InsureVehicle(lastVeh);
-            } else {
-                if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.NoMoney);
-                Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual", "No tienes suficiente dinero", "");
-            }
+            InsureVehicle(lastVeh);
         }
 
+        /// <summary>
+        /// Intenta gastar dinero. Devuelve true si el pago se realizó; false si no hay fondos.
+        /// </summary>
+        private bool TrySpendMoney(int amount)
+        {
+            if (Game.Player.Money >= amount)
+            {
+                Game.Player.Money -= amount;
+                return true;
+            }
+
+            if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.NoMoney);
+            Utils.ShowNotification(NotifyChar, NotifyTitle, NoMoneyMsg, "");
+            return false;
+        }
 
         /// <summary>
-        /// Ejecuta el aseguramiento del vehículo: notifica al InsuranceManager,
-        /// reproduce sonido, deshabilita el botón Asegurar y refresca los submenús afectados.
+        /// Ejecuta el aseguramiento del vehículo y refresca los menús afectados.
         /// </summary>
         private void InsureVehicle(Vehicle veh)
         {
             if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.Okay);
-            InsuranceManager.Instance.InsureVehicle(veh);
-            Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual", "Vehículo asegurado correctamente.", "");
 
+            InsuranceManager.Instance.InsureVehicle(veh);
+            Utils.ShowNotification(NotifyChar, NotifyTitle, "Vehículo asegurado correctamente.", "");
             _itemInsure.Enabled = false;
 
-            // Refresca submenú Cancelar
-            RefreshMenuIndex(_submenuCancel, "No tienes vehículos asegurados.");
+            RefreshAffectedMenusAfterInsurance();
+        }
+
+        /// <summary>
+        /// Refresca los submenús que pueden verse afectados tras asegurar un vehículo.
+        /// </summary>
+        private void RefreshAffectedMenusAfterInsurance()
+        {
+            EnsureMenuNotEmptyAndResetIndex(_submenuCancel, NoVehiclesMsg);
             RebuildMenuCancel();
 
-            // Si estamos en el teléfono, refresca el menú de traer vehículo
             if (OpenedFromiFruit)
             {
-                RefreshMenuIndex(_submenuBring, "No tienes vehículos asegurados.");
-                //RebuildMenuBring();
+                // EnsureMenuNotEmptyAndResetIndex(_submenuBring, "No tienes vehículos asegurados.");
+                // RebuildMenuBring();
             }
 
-            // Refresca submenú Cambiar matrícula
-            RefreshMenuIndex(_submenuPlate, "No tienes vehículos asegurados.");
+            EnsureMenuNotEmptyAndResetIndex(_submenuPlate, NoVehiclesMsg);
             RebuildMenuPlate();
         }
 
-
         /// <summary>
-        /// Crea un submenú estándar de MMI, le asigna el banner (si existe) y añade un ítem en el menú padre.
-        /// Devuelve el submenú creado para que el método que la llama pueda seguir usándolo.
+        /// Crea un submenú estándar de MMI y lo vincula al menú padre.
         /// </summary>
-        private NativeMenu CreateStandardSubMenu(NativeMenu parent, string title, string subtitle,
-                                                  string itemText, string itemDescription, Action rebuildAction)
+        private UIMenu CreateStandardSubMenu(UIMenu parent, string title, string subtitle,
+            string itemText, string itemDescription, Action rebuildAction)
         {
-            // 1. Crear submenú
-            NativeMenu submenu = new NativeMenu(title, subtitle);
+            UIMenu submenu = new UIMenu(title, subtitle);
             _menuPool.Add(submenu);
 
-            // Banner con texto y color (reemplaza la imagen)
-            submenu.BannerText = new ScaledText(new PointF(0, 0), "~g~Mors Mutual Insurance");
+            UIMenuItem item = new UIMenuItem(itemText, itemDescription);
+            item.Activated += (sender, selectedItem) => submenu.Visible = true;
+            parent.AddItem(item);
 
-            // 3. Ítem en el menú padre que abre el submenú
-            NativeItem item = new NativeItem(itemText, itemDescription);
-            item.Activated += (sender, e) => submenu.Visible = true;
-            parent.Add(item);
-
-            // 4. Construir el contenido del submenú (rebuild)
             rebuildAction?.Invoke();
-
             return submenu;
         }
 
-
-        /// <summary>
-        /// Cancel a contract by removing the vehicle from the database.
-        /// </summary>
-        /// <param name="menu"></param>
-        private void CreateMenuCancel(NativeMenu menu)
+        // ------------------------------------------------------------------------
+        // Submenú Cancelar seguro
+        // ------------------------------------------------------------------------
+        private void CreateMenuCancel(UIMenu menu)
         {
-            _submenuCancel = CreateStandardSubMenu(menu,
-                "Cancelar seguro", "Selecciona el vehículo a cancelar",
-                "Cancelar seguro", "Elimina un vehículo de tu póliza",
-                RebuildMenuCancel);
+            _submenuCancel = CreateStandardSubMenu(menu, "Cancelar seguro",
+                "Selecciona el vehículo a cancelar", "Cancelar seguro",
+                "Elimina un vehículo de tu póliza", RebuildMenuCancel);
         }
 
-        /// <summary>
-        /// Reconstruye el submenú de cancelación con los vehículos asegurados del personaje.
-        /// Si no hay vehículos, muestra un ítem deshabilitado.
-        /// </summary>
         private void RebuildMenuCancel()
         {
-
             _submenuCancel.Clear();
+            List<string> vehicleList = GetInsuredVehicleList();
 
-            string currentCharacter = Game.Player.Character.Model.Hash.ToString();
-            List<string> vehicleList = InsuranceManager.GetInsuredVehicles(currentCharacter, false);
-            vehicleList.AddRange(InsuranceManager.GetInsuredVehicles(currentCharacter, true));
-
-            if (vehicleList.Count > 0)
+            if (vehicleList.Count == 0)
             {
-                foreach (string vehID in vehicleList)
+                AddEmptyItem(_submenuCancel, NoVehiclesMsg);
+                return;
+            }
+
+            foreach (string vehID in vehicleList)
+            {
+                string modelName = InsuranceManager.Instance.GetVehicleModelName(vehID);
+                string plate = InsuranceManager.Instance.GetVehicleLicensePlate(vehID);
+                UIMenuItem cancelItem = new UIMenuItem(modelName, $"Matrícula: {plate}");
+                _submenuCancel.AddItem(cancelItem);
+
+                cancelItem.Activated += (sender, selectedItem) =>
                 {
-                    string modelName = InsuranceManager.Instance.GetVehicleModelName(vehID);
-                    string plate = InsuranceManager.Instance.GetVehicleLicensePlate(vehID);
-
-                    NativeItem cancelItem = new NativeItem(modelName, $"Matrícula: {plate}");
-                    _submenuCancel.Add(cancelItem);
-
-                    cancelItem.Activated += (sender, e) => {
-                        if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.Okay);
-                        InsuranceManager.Instance.CancelVehicle(vehID);
-                        Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual", "Seguro cancelado correctamente.", "");
-
-                        // Refresca todos los submenús afectados
-                        RebuildMenuCancel();
-                        BuildItemInsure(); // Refresca el botón de asegurar
-                        RebuildMenuRecover();
-                        RebuildMenuPlate();
-
-                        //if (OpenedFromiFruit) RebuildMenuBring();
-                    };
-                }
-            } else {
-                NativeItem emptyItem = new NativeItem("Vacío", "No tienes vehículos asegurados.");
-                emptyItem.Enabled = false;
-                _submenuCancel.Add(emptyItem);
+                    if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.Okay);
+                    InsuranceManager.Instance.CancelVehicle(vehID);
+                    Utils.ShowNotification(NotifyChar, NotifyTitle, "Seguro cancelado correctamente.", "");
+                    RebuildMenuCancel();
+                    BuildItemInsure();
+                    RebuildMenuRecover();
+                    RebuildMenuPlate();
+                };
             }
         }
 
-        /// <summary>
-        /// Crea el submenú "Recuperar vehículo" y lo vincula al menú principal.
-        /// </summary>
-        private void CreateMenuRecover(NativeMenu menu)
+        // ------------------------------------------------------------------------
+        // Submenú Recuperar vehículo
+        // ------------------------------------------------------------------------
+        private void CreateMenuRecover(UIMenu menu)
         {
-            _submenuRecover = CreateStandardSubMenu(menu,
-                "Recuperar vehículo", "Selecciona un vehículo destruido para recuperarlo",
-                "Recuperar vehículo", "Recupera un vehículo destruido de tu póliza",
-                RebuildMenuRecover);
+            _submenuRecover = CreateStandardSubMenu(menu, "Recuperar vehículo",
+                "Selecciona un vehículo destruido para recuperarlo", "Recuperar vehículo",
+                "Recupera un vehículo destruido de tu póliza", RebuildMenuRecover);
         }
 
-        /// <summary>
-        /// Reconstruye la lista de vehículos destruidos que pueden ser recuperados.
-        /// Si no hay vehículos, muestra un ítem deshabilitado.
-        /// </summary>
         private void RebuildMenuRecover()
         {
             _submenuRecover.Clear();
             string currentCharacter = Game.Player.Character.Model.Hash.ToString();
             List<string> deadVehicleList = InsuranceManager.GetInsuredVehicles(currentCharacter, true);
 
-            // Guard clause: sin vehículos destruidos
             if (deadVehicleList.Count == 0)
             {
-                NativeItem emptyItem = new NativeItem("Vacío", "No tienes vehículos destruidos que recuperar.");
-                emptyItem.Enabled = false;
-                _submenuRecover.Add(emptyItem);
+                AddEmptyItem(_submenuRecover, "No tienes vehículos destruidos que recuperar.");
                 return;
             }
 
@@ -315,83 +289,53 @@ namespace MMI_SP
             {
                 int cost = InsuranceManager.Instance.GetVehicleInsuranceCost(vehID, InsuranceManager.Multiplier.Recover);
                 string vehicleName = InsuranceManager.Instance.GetVehicleFriendlyName(vehID, false);
+                UIMenuItem recoverItem = new UIMenuItem(vehicleName, $"Coste de recuperación: {cost}$");
+                _submenuRecover.AddItem(recoverItem);
 
-                NativeItem recoverItem = new NativeItem(vehicleName, $"Coste de recuperación: {cost}$");
-                _submenuRecover.Add(recoverItem);
-
-                recoverItem.Activated += (sender, e) =>
+                recoverItem.Activated += (sender, selectedItem) =>
                 {
-                    // Guard clause: sin dinero suficiente
-                    if (Game.Player.Money < cost)
-                    {
-                        if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.NoMoney);
-                        Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual", "No tienes suficiente dinero.", "");
-                        return;
-                    }
+                    if (!TrySpendMoney(cost)) return;
 
-                    // Recuperación exitosa
                     if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.Okay);
                     InsuranceManager.Instance.RecoverVehicle(vehID);
-                    Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual", "Vehículo recuperado correctamente.", "");
-
+                    Utils.ShowNotification(NotifyChar, NotifyTitle, "Vehículo recuperado correctamente.", "");
                     RebuildMenuRecover();
-                    //if (OpenedFromiFruit) RebuildMenuBring();
                 };
             }
         }
 
-        /// <summary>
-        /// Crea el submenú "Cambiar matrícula" y lo vincula al menú principal.
-        /// </summary>
-        /// <param name="menu"></param>
-        private void CreateMenuPlate(NativeMenu menu)
+        // ------------------------------------------------------------------------
+        // Submenú Cambiar matrícula
+        // ------------------------------------------------------------------------
+        private void CreateMenuPlate(UIMenu menu)
         {
-            _submenuPlate = CreateStandardSubMenu(menu,
-                "Cambiar matrícula", "Edita la placa de tus vehículos asegurados",
-                "Cambiar matrícula", "Modifica la matrícula de un vehículo asegurado",
-                RebuildMenuPlate);
+            _submenuPlate = CreateStandardSubMenu(menu, "Cambiar matrícula",
+                "Edita la placa de tus vehículos asegurados", "Cambiar matrícula",
+                "Modifica la matrícula de un vehículo asegurado", RebuildMenuPlate);
         }
 
-        /// <summary>
-        /// Reconstruye el submenú "Cambiar matrícula" con los vehículos asegurados.
-        /// Al seleccionar un vehículo se pide una nueva placa, se valida y se actualiza.
-        /// </summary>
         private void RebuildMenuPlate()
         {
             _submenuPlate.Clear();
-            int price = 1000;
+            const int plateChangeCost = 1000;
+            List<string> vehicleList = GetInsuredVehicleList();
 
-            // Obtenemos el hash del personaje actual
-            string currentCharacter = Game.Player.Character.Model.Hash.ToString();
-            List<string> vehicleList = InsuranceManager.GetInsuredVehicles(currentCharacter, false);
-            vehicleList.AddRange(InsuranceManager.GetInsuredVehicles(currentCharacter, true));
-
-            // Guard clause: sin vehículos asegurados
             if (vehicleList.Count == 0)
             {
-                NativeItem emptyItem = new NativeItem("Vacío", "No tienes vehículos asegurados.");
-                emptyItem.Enabled = false;
-                _submenuPlate.Add(emptyItem);
+                AddEmptyItem(_submenuPlate, NoVehiclesMsg);
                 return;
             }
 
             foreach (string vehID in vehicleList)
             {
                 string vehicleName = InsuranceManager.Instance.GetVehicleFriendlyName(vehID, false);
-                NativeItem plateItem = new NativeItem(vehicleName, $"Coste: {price}$");
-                _submenuPlate.Add(plateItem);
+                UIMenuItem plateItem = new UIMenuItem(vehicleName, $"Coste: {plateChangeCost}$");
+                _submenuPlate.AddItem(plateItem);
 
-                plateItem.Activated += (sender, e) =>
+                plateItem.Activated += (sender, selectedItem) =>
                 {
-                    // Guard clause: sin dinero suficiente
-                    if (Game.Player.Money < price)
-                    {
-                        if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.NoMoney);
-                        Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual", "No tienes suficiente dinero.", "");
-                        return;
-                    }
-
-                    ChangePlateAction(vehID, price, plateItem);
+                    if (!TrySpendMoney(plateChangeCost)) return;
+                    ChangePlateAction(vehID, plateChangeCost, plateItem);
                 };
             }
         }
@@ -399,134 +343,114 @@ namespace MMI_SP
         /// <summary>
         /// Ejecuta el cambio de matrícula del vehículo con el identificador dado.
         /// </summary>
-        private void ChangePlateAction(string vehID, int price, NativeItem item)
+        private void ChangePlateAction(string vehID, int price, UIMenuItem item)
         {
             if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.Okay);
 
             string oldPlate = InsuranceManager.Instance.GetVehicleLicensePlate(vehID);
-
-            // Pedir la nueva matrícula
             string newPlate = Game.GetUserInput(WindowTitle.EnterMessage60, oldPlate, 8);
             if (string.IsNullOrEmpty(newPlate)) return;
 
-            newPlate = newPlate.Trim().ToUpperInvariant();
-            newPlate = newPlate.PadRight(8); // La nativa de GetUserInput puede devolver menos de 8
+            newPlate = newPlate.Trim().ToUpperInvariant().PadRight(8);
 
-            // Validaciones
-            if (string.IsNullOrWhiteSpace(newPlate) || newPlate.Length > 8)
-            {
-                Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual", "Matrícula inválida.", "");
-                return;
-            }
+            if (newPlate == oldPlate) return;
 
-            if (newPlate == oldPlate)
-            {
-                // No se cambió nada, se cierra el diálogo sin hacer nada
-                return;
-            }
-
-            // Cobrar y cambiar la placa en la base de datos
-            Game.Player.Money -= price;
+            // Cobrar (ya realizado en TrySpendMoney)
             string newVehID = InsuranceManager.Instance.ChangeVehicleLicensePlate(vehID, newPlate);
 
-            // Actualizar el nombre mostrado en el ítem
-            item.Title = InsuranceManager.Instance.GetVehicleFriendlyName(newVehID, false);
+            // Actualizar descripción del ítem
+            item.Description = InsuranceManager.Instance.GetVehicleFriendlyName(newVehID, false);
 
-            // Actualizar los vehículos en el mundo que tengan el identificador antiguo
+            // Actualizar vehículos en mundo con el identificador antiguo
             for (int i = InsuranceObserver.InsuredVehList.Count - 1; i >= 0; i--)
             {
-                if (Utils.GetVehicleIdentifier(InsuranceObserver.InsuredVehList[i]) == vehID)
+                if (Utils.Vehicle.GetVehicleIdentifier(InsuranceObserver.InsuredVehList[i]) == vehID)
                 {
                     InsuranceObserver.InsuredVehList[i].Mods.LicensePlate = newPlate;
                     InsuranceObserver.InsuredVehList.RemoveAt(i);
                 }
             }
 
-            // Actualizar el diccionario de blips
+            // Actualizar blips
             if (InsuranceObserver.BlipsToRemove.TryGetValue(vehID, out Blip vehBlip))
             {
                 InsuranceObserver.BlipsToRemove.Remove(vehID);
                 InsuranceObserver.BlipsToRemove.Add(newVehID, vehBlip);
             }
 
-            // Notificar al jugador
-            Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual",
-                $"Placa cambiada: {oldPlate} → {newPlate}", "");
+            Utils.ShowNotification(NotifyChar, NotifyTitle, $"Placa cambiada: {oldPlate} → {newPlate}", "");
 
-            // Refrescar todos los menús afectados (sin espera, ya que la DB está actualizada)
-            BuildItemInsure(); // Refresca el botón de asegurar
+            // Refrescar todos los menús afectados
+            BuildItemInsure();
             RebuildMenuCancel();
             RebuildMenuRecover();
-            //if (OpenedFromiFruit) RebuildMenuBring();
             RebuildMenuPlate();
         }
 
-
-        /*/// <summary>
-        /// Bring the vehicle to the player
-        /// </summary>
-        /// <param name="menu"></param>
-        private void CreateMenuBring(NativeMenu menu)
+        // ------------------------------------------------------------------------
+        // Métodos auxiliares
+        // ------------------------------------------------------------------------
+        private List<string> GetInsuredVehicleList()
         {
-            _submenuBring = CreateStandardSubMenu(menu,
-                "Traer mi vehículo", "Un conductor traerá el vehículo hasta ti",
-                "Traer mi vehículo", "Solicita que te acerquen un vehículo asegurado",
-                RebuildMenuBring);
+            string currentCharacter = Game.Player.Character.Model.Hash.ToString();
+            List<string> vehicleList = InsuranceManager.GetInsuredVehicles(currentCharacter, false);
+            vehicleList.AddRange(InsuranceManager.GetInsuredVehicles(currentCharacter, true));
+            return vehicleList;
         }
+
+        private void AddEmptyItem(UIMenu menu, string description)
+        {
+            UIMenuItem emptyItem = new UIMenuItem(EmptyItemTitle, description);
+            emptyItem.Enabled = false;
+            menu.AddItem(emptyItem);
+        }
+
+        // ------------------------------------------------------------------------
+        // Funcionalidad Bring (desactivada temporalmente, código migrado por si se reactiva)
+        // ------------------------------------------------------------------------
+        /*
+        private void CreateMenuBring(UIMenu menu)
+        {
+            _submenuBring = CreateStandardSubMenu(menu, "Traer mi vehículo",
+                "Un conductor traerá el vehículo hasta ti", "Traer mi vehículo",
+                "Solicita que te acerquen un vehículo asegurado", RebuildMenuBring);
+        }
+
         private void RebuildMenuBring()
         {
             _submenuBring.Clear();
-
             if (InsuranceObserver.GetBringableVehicles().Count > 0)
             {
                 foreach (Vehicle veh in InsuranceObserver.GetBringableVehicles())
                 {
-                    string vehID = Utils.GetVehicleIdentifier(veh);
-
-                    // 1. Obtenemos el ID del personaje actual de forma nativa (v3)
+                    string vehID = Utils.Vehicle.GetVehicleIdentifier(veh);
                     string currentCharacter = Game.Player.Character.Model.Hash.ToString();
+                    if (currentCharacter != InsuranceManager.GetVehicleOwner(vehID)) continue;
 
-                    // 2. Comparamos con el dueño registrado (usando el método estático del Manager)
-                    if (currentCharacter == InsuranceManager.GetVehicleOwner(vehID))
+                    int cost = (int)((Game.Player.Character.Position.DistanceTo(veh.Position) / 1000) * Config.BringVehicleBasePrice);
+                    UIMenuItem bringItem = new UIMenuItem(InsuranceManager.Instance.GetVehicleFriendlyName(vehID, false), "Traer vehículo");
+                    bringItem.SetRightLabel(cost + "$");
+                    _submenuBring.AddItem(bringItem);
+
+                    bringItem.Activated += (sender, selectedItem) =>
                     {
-                        int cost = (int)((Game.Player.Character.Position.DistanceTo(veh.Position) / 1000) * Config.BringVehicleBasePrice);
-                        UIMenuItem bringVehicle = new UIMenuItem(InsuranceManager.Instance.GetVehicleFriendlyName(vehID, false), T.GetString("BringVehicleDesc"));
-                        bringVehicle.SetRightLabel(cost + "$");
-                        _submenuBring.AddItem(bringVehicle);
-
-                        _submenuBring.OnItemSelect += (sender, item, index) =>
+                        if (TrySpendMoney(cost))
                         {
-                            if (item == bringVehicle)
-                            {
-                                if (Game.Player.Money >= cost)
-                                {
-                                    if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.Okay);
-                                    InsuranceObserver.Instance.BringVehicleToPlayer(veh, cost, Config.BringVehicleInstant);
-                                    bringVehicle.Enabled = false;
-                                    // Reemplazo de UI.Notify por la notificación oficial de Mors Mutual
-                                    Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual", "", T.GetString("NotifyBringVehicle"));
-
-                                    _submenuBring.RemoveItemAt(index);
-
-                                    // Updates
-                                    RefreshMenuIndex(_submenuBring, T.GetString("BringVehicleItemEmptyDesc"));
-                                }
-                                else
-                                {
-                                    if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.NoMoney);
-                                    // Reemplazo final de UI.Notify para falta de fondos en "Bring Vehicle"
-                                    Utils.ShowNotification("CHAR_CARSITE", "Mors Mutual", "", T.GetString("NotifyNoMoney"));
-                                }
-                            }
-                        };
-                    }
+                            if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.Okay);
+                            InsuranceObserver.Instance.BringVehicleToPlayer(veh, cost, Config.BringVehicleInstant);
+                            bringItem.Enabled = false;
+                            Utils.ShowNotification(NotifyChar, NotifyTitle, "", "Vehículo en camino.");
+                            _submenuBring.RemoveItemAt(_submenuBring.MenuItems.IndexOf(bringItem));
+                            EnsureMenuNotEmptyAndResetIndex(_submenuBring, "No tienes vehículos disponibles.");
+                        }
+                    };
                 }
             }
             else
             {
-                UIMenuItem bringVehicle = new UIMenuItem(T.GetString("Empty"), T.GetString("BringVehicleItemEmptyDesc")) { Enabled = false };
-                _submenuBring.AddItem(bringVehicle);
+                AddEmptyItem(_submenuBring, "No tienes vehículos disponibles.");
             }
-        }*/
+        }
+        */
     }
 }
