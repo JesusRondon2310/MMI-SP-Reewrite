@@ -12,7 +12,7 @@ namespace MMI_SP
     {
         internal static readonly string BaseDir = AppDomain.CurrentDomain.BaseDirectory + "\\MMI";
         internal static readonly string ConfigFile = BaseDir + "\\config.ini";
-        //internal static readonly string BannerImage = BaseDir + "\\banner.png";
+        internal static readonly string BannerImage = BaseDir + "\\banner.png";
         internal static readonly string InsuranceImage = BaseDir + "\\insurance.png";
         
         public static ScriptSettings Settings { get => _settings; }
@@ -71,7 +71,6 @@ namespace MMI_SP
         public static bool CaniFruitPlate { get => _caniFruitPlate; }
         private static bool _caniFruitPlate;
 
-
         public static void Initialize()
         {
             if (!Directory.Exists(BaseDir))
@@ -94,12 +93,6 @@ namespace MMI_SP
                 Logger.Debug("Creating insurance image file");
                 Properties.Resources.insurance.Save(InsuranceImage);
             }
-            if (!File.Exists(LanguageFile))
-            {
-                Logger.Debug("Creating default language file");
-                File.WriteAllText(LanguageFile, Properties.Resources._default);
-            }
-            
             if (File.Exists(ConfigFile))
             {
                 Logger.Debug("Loading config file");
@@ -132,8 +125,6 @@ namespace MMI_SP
 
 
             // General
-            string languageFile = Settings.GetValue("General", "language", "default");
-            T.Initialize($@"{BaseDir}\{languageFile}.xml");
             _persistentVehicles = Settings.GetValue("General", "PersistentInsuredVehicles", false);
 
 
