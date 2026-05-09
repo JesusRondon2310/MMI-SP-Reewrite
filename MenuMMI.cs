@@ -92,6 +92,49 @@ namespace MMI_SP
         }
 
         /// <summary>
+        /// Intenta gastar dinero. Devuelve true si el pago se realizó; false si no hay fondos.
+        /// </summary>
+        private bool TrySpendMoney(int amount)
+        {
+            if (Game.Player.Money < amount)
+            {
+                if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.NoMoney);
+                Utils.ShowNotification(NotifyChar, NotifyTitle, NoMoneyMsg, "");
+                return false;
+            }
+            Game.Player.Money -= amount;
+            return true;
+        }
+
+        /// <summary>
+        /// Reconstruye todos los submenús y el botón de asegurar.
+        /// </summary>
+        private void RefreshAllMenus()
+        {
+            BuildItemInsure();
+            RebuildMenuCancel();
+            RebuildMenuRecover();
+            RebuildMenuPlate();
+        }
+
+        /// <summary>
+        /// Asegura que los submenús no estén vacíos y luego refresca todo.
+        /// Se usa tras asegurar un vehículo.
+        /// </summary>
+        private void RefreshAffectedMenusAfterInsurance()
+        {
+            EnsureMenuNotEmptyAndResetIndex(_submenuCancel, NoVehiclesMsg);
+            if (OpenedFromiFruit)
+            {
+                // EnsureMenuNotEmptyAndResetIndex(_submenuBring, "...");
+                // RebuildMenuBring();
+            }
+            EnsureMenuNotEmptyAndResetIndex(_submenuPlate, NoVehiclesMsg);
+
+            RefreshAllMenus();
+        }
+
+        /// <summary>
         /// Se asegura de que el menú nunca esté vacío y restablece el índice seleccionado.
         /// </summary>
         private void EnsureMenuNotEmptyAndResetIndex(UIMenu menu, string itemDescription)
@@ -169,21 +212,6 @@ namespace MMI_SP
         }
 
         /// <summary>
-        /// Intenta gastar dinero. Devuelve true si el pago se realizó; false si no hay fondos.
-        /// </summary>
-        private bool TrySpendMoney(int amount)
-        {
-            if (Game.Player.Money < amount)
-            {
-                if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.NoMoney);
-                Utils.ShowNotification(NotifyChar, NotifyTitle, NoMoneyMsg, "");
-                return false;
-            }
-            Game.Player.Money -= amount;
-            return true;
-        }
-
-        /// <summary>
         /// Ejecuta el aseguramiento del vehículo y refresca los menús afectados.
         /// </summary>
         private void InsureVehicle(Vehicle veh)
@@ -195,24 +223,6 @@ namespace MMI_SP
             _itemInsure.Enabled = false;
 
             RefreshAffectedMenusAfterInsurance();
-        }
-
-        /// <summary>
-        /// Refresca los submenús que pueden verse afectados tras asegurar un vehículo.
-        /// </summary>
-        private void RefreshAffectedMenusAfterInsurance()
-        {
-            EnsureMenuNotEmptyAndResetIndex(_submenuCancel, NoVehiclesMsg);
-            RebuildMenuCancel();
-
-            if (OpenedFromiFruit)
-            {
-                // EnsureMenuNotEmptyAndResetIndex(_submenuBring, "No tienes vehículos asegurados.");
-                // RebuildMenuBring();
-            }
-
-            EnsureMenuNotEmptyAndResetIndex(_submenuPlate, NoVehiclesMsg);
-            RebuildMenuPlate();
         }
 
         /// <summary>
@@ -264,10 +274,7 @@ namespace MMI_SP
                 {
                     if (OpenedFromiFruit) InsuranceManager.Instance.CancelVehicle(vehID);
                     PlaySuccess("Seguro cancelado correctamente.");
-                    RebuildMenuCancel();
-                    BuildItemInsure();
-                    RebuildMenuRecover();
-                    RebuildMenuPlate();
+                    RefreshAllMenus();
                 };
             }
         }
@@ -319,7 +326,7 @@ namespace MMI_SP
         {
             _submenuPlate = CreateStandardSubMenu(menu, "Cambiar matrícula",
                 "Edita la placa de tus vehículos asegurados", "Cambiar matrícula",
-                "Modifica la matrícula de un vehículo asegurado", RebuildMenuPlate);
+                "Modifica la matrícula de un vehículo asegurado", RefreshAllMenus);
         }
 
         private void RebuildMenuPlate()
@@ -389,10 +396,7 @@ namespace MMI_SP
                 PlaySuccess($"Placa cambiada: {oldPlate} → {newPlate}");
 
                 // Refrescar todos los menús afectados
-                BuildItemInsure();
-                RebuildMenuCancel();
-                RebuildMenuRecover();
-                RebuildMenuPlate();
+                RefreshAllMenus();
             }
         }
 
