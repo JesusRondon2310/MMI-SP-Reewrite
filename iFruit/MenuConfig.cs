@@ -9,17 +9,15 @@ using System.IO;
 
 namespace MMI_SP.iFruit
 {
-    using T = Translator;
-
     class MenuConfig
     {
-        private static string _menuTitle = T.GetString("ConfigMenuTitle");
+        private static string _menuTitle = "Configuración MMI";
         public string MenuTitle { get => _menuTitle; set => _menuTitle = value; }
 
         private static readonly Point _offset = new Point(640, 360);
 
         private readonly MenuPool _menuPool;
-        readonly UIMenu _mainMenu = new UIMenu(_menuTitle, T.GetString("ConfigMenuSubtitle"), _offset);
+        readonly UIMenu _mainMenu = new UIMenu(_menuTitle, "Ajustes del mod Mors Mutual Insurance", _offset);
 
 
         internal void MenuPoolProcessMenus() { _menuPool.ProcessMenus(); }
@@ -30,36 +28,27 @@ namespace MMI_SP.iFruit
             _menuPool = new MenuPool();
             _menuPool.Add(_mainMenu);
 
-            UIMenu submenuGeneral = AddSubMenu(_menuPool, _mainMenu, _menuTitle, T.GetString("ConfigMenuItemGeneral"), _offset);
-            AddMenuConfigLanguage(submenuGeneral, "Language", Config.Settings.GetValue("General", "language", "default"), T.GetString("ConfigMenuGeneralLanguage"));
-            AddMenuConfigCheckbox(submenuGeneral, "General", "PersistentInsuredVehicles", Config.PersistentVehicles, T.GetString("ConfigMenuGeneralPersistent"));
+            UIMenu submenuGeneral = AddSubMenu(_menuPool, _mainMenu, _menuTitle, "General", _offset);
+            AddMenuConfigLanguage(submenuGeneral, "Language", Config.Settings.GetValue("General", "language", "default"), "Idioma");
+            AddMenuConfigCheckbox(submenuGeneral, "General", "PersistentInsuredVehicles", Config.PersistentVehicles, "Vehículos asegurados persistentes");
 
             UIMenu submenuiFruit = AddSubMenu(_menuPool, _mainMenu, _menuTitle, "iFruit", _offset);
-            AddMenuConfigList(submenuiFruit, "iFruit", "PhoneVolume", Config.iFruitVolume, T.GetString("ConfigMenuiFruitPhoneVolume"), 0, 100, 5);
-            AddMenuConfigCheckbox(submenuiFruit, "iFruit", "CaniFruitInsure", Config.CaniFruitInsure, T.GetString("ConfigMenuiFruitInsure"));
-            AddMenuConfigCheckbox(submenuiFruit, "iFruit", "CaniFruitCancel", Config.CaniFruitCancel, T.GetString("ConfigMenuiFruitCancel"));
-            AddMenuConfigCheckbox(submenuiFruit, "iFruit", "CaniFruitRecover", Config.CaniFruitRecover, T.GetString("ConfigMenuiFruitRecover"));
-            AddMenuConfigCheckbox(submenuiFruit, "iFruit", "CaniFruitStolen", Config.CaniFruitStolen, T.GetString("ConfigMenuiFruitStolen"));
-            AddMenuConfigCheckbox(submenuiFruit, "iFruit", "CaniFruitPlate", Config.CaniFruitPlate, T.GetString("ConfigMenuiFruitPlate"));
-            
-            UIMenu submenuNotifications = AddSubMenu(_menuPool, _mainMenu, _menuTitle, T.GetString("ConfigMenuItemNotify"), _offset);
-            AddMenuConfigCheckbox(submenuNotifications, "Check", "CheckForUpdate", Config.CheckForUpdate, T.GetString("ConfigMenuNotifyUpdate"));
-            AddMenuConfigCheckbox(submenuNotifications, "Check", "ShowSHVDNNotification", Config.ShowSHVDNNotification, T.GetString("ConfigMenuNotifySHVDN"));
-            AddMenuConfigCheckbox(submenuNotifications, "Check", "ShowFileNotification", Config.ShowFileNotification, T.GetString("ConfigMenuNotifyFile"));
-            AddMenuConfigCheckbox(submenuNotifications, "Check", "ShowVisualCNotification", Config.ShowSHVDNNotification, T.GetString("ConfigMenuNotifyVisualC"));
-            AddMenuConfigCheckbox(submenuNotifications, "Check", "ShowNETFrameworkNotification", Config.ShowSHVDNNotification, T.GetString("ConfigMenuNotifyNET"));
-            submenuNotifications.AddItem(new UIMenuItem(T.GetString("ConfigMenuNotifyReboot")) { Enabled = false } );
+            AddMenuConfigList(submenuiFruit, "iFruit", "PhoneVolume", Config.iFruitVolume, "Volumen del teléfono", 0, 100, 5);
+            AddMenuConfigCheckbox(submenuiFruit, "iFruit", "CaniFruitInsure", Config.CaniFruitInsure, "Asegurar desde iFruit");
+            AddMenuConfigCheckbox(submenuiFruit, "iFruit", "CaniFruitCancel", Config.CaniFruitCancel, "Cancelar desde iFruit");
+            AddMenuConfigCheckbox(submenuiFruit, "iFruit", "CaniFruitRecover", Config.CaniFruitRecover, "Recuperar desde iFruit");
+            AddMenuConfigCheckbox(submenuiFruit, "iFruit", "CaniFruitPlate", Config.CaniFruitPlate, "Cambiar matrícula desde iFruit");
 
-            UIMenu submenuInsurance = AddSubMenu(_menuPool, _mainMenu, _menuTitle, T.GetString("ConfigMenuItemInsurance"), _offset);
+            UIMenu submenuInsurance = AddSubMenu(_menuPool, _mainMenu, _menuTitle, "Seguros", _offset);
             AddMenuConfigList(submenuInsurance, "Insurance", "InsuranceCostMultiplier", Config.InsuranceMult, GetCostMultiplierDescription("InsuranceCostMultiplier"), 0f, 100f, 0.1f);
             AddMenuConfigList(submenuInsurance, "Insurance", "RecoverCostMultiplier", Config.RecoverMult, GetCostMultiplierDescription("RecoverCostMultiplier"), 0f, 100f, 0.1f);
             AddMenuConfigList(submenuInsurance, "Insurance", "StolenCostMultiplier", Config.StolenMult, GetCostMultiplierDescription("StolenCostMultiplier"), 0f, 100f, 0.1f);
 
-            UIMenu submenuBringVehicle = AddSubMenu(_menuPool, _mainMenu, _menuTitle, T.GetString("ConfigMenuItemBringVehicle"), _offset);
-            AddMenuConfigList(submenuBringVehicle, "BringVehicle", "BringVehicleBasePrice", Config.BringVehicleBasePrice, T.GetString("ConfigMenuBringVehiclePrice"), 0, 2000, 50);
+            UIMenu submenuBringVehicle = AddSubMenu(_menuPool, _mainMenu, _menuTitle, "Traer vehículo", _offset);
+            AddMenuConfigList(submenuBringVehicle, "BringVehicle", "BringVehicleBasePrice", Config.BringVehicleBasePrice, "Precio base", 0, 2000, 50);
             AddMenuConfigBringVehicleInstant(submenuBringVehicle, "BringVehicle", "BringVehicleInstant", Config.BringVehicleInstant, "");
-            AddMenuConfigList(submenuBringVehicle, "BringVehicle", "BringVehicleRadius", Config.BringVehicleRadius, T.GetString("ConfigMenuBringVehicleRadius"), 10, 2000, 5);
-            AddMenuConfigList(submenuBringVehicle, "BringVehicle", "BringVehicleTimeout", Config.BringVehicleTimeout, T.GetString("ConfigMenuBringVehicleTimeout"), 1, 30, 1);
+            AddMenuConfigList(submenuBringVehicle, "BringVehicle", "BringVehicleRadius", Config.BringVehicleRadius, "Radio de búsqueda", 10, 2000, 5);
+            AddMenuConfigList(submenuBringVehicle, "BringVehicle", "BringVehicleTimeout", Config.BringVehicleTimeout, "Tiempo de espera", 1, 30, 1);
         }
 
         internal void Show()
@@ -103,8 +92,8 @@ namespace MMI_SP.iFruit
 
         private void AddMenuConfigBringVehicleInstant(UIMenu menu, string section, string key, bool isChecked, string description)
         {
-            string textTrue = T.GetString("ConfigMenuBringVehicleInstantTrue");
-            string textFalse = T.GetString("ConfigMenuBringVehicleInstantFalse");
+            string textTrue = "Instantáneo";
+            string textFalse = "Con retraso";
 
             UIMenuCheckboxItem notifyItem = new UIMenuCheckboxItem(key, isChecked, description);
             if (notifyItem.Checked)
@@ -205,20 +194,16 @@ namespace MMI_SP.iFruit
             if (playerVehicle != null)
             {
                 if (string.Compare(costType, "InsuranceCostMultiplier", true) == 0)
-                    return T.GetString("ConfigMenuInsuranceInsurance") + " " + T.GetString("ConfigMenuInsuranceInsuranceEx");
+                    return "Coste del seguro" + " " + "(actual: $VehicleInsuranceCost$)";
                 else if (string.Compare(costType, "RecoverCostMultiplier", true) == 0)
-                    return T.GetString("ConfigMenuInsuranceRecover") + " " + T.GetString("ConfigMenuInsuranceRecoverEx");
-                else if (string.Compare(costType, "StolenCostMultiplier", true) == 0)
-                    return T.GetString("ConfigMenuInsuranceStolen") + " " + T.GetString("ConfigMenuInsuranceStolenEx");
+                    return "Coste de recuperación" + " " + "(actual: $VehicleRecoverCost$)";
             }
             else
             {
                 if (string.Compare(costType, "InsuranceCostMultiplier", true) == 0)
-                    return T.GetString("ConfigMenuInsuranceInsurance");
+                    return "Coste del seguro";
                 else if (string.Compare(costType, "RecoverCostMultiplier", true) == 0)
-                    return T.GetString("ConfigMenuInsuranceRecover");
-                else if (string.Compare(costType, "StolenCostMultiplier", true) == 0)
-                    return T.GetString("ConfigMenuInsuranceStolen");
+                    return "Coste de recuperación";
             }
             return "";
         }

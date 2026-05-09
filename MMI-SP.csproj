@@ -51,13 +51,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="iFruitAddon2">
-      <HintPath>_Other\binaries\iFruitAddon2.dll</HintPath>
+      <HintPath>..\referencias\iFruitAddon2.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NativeUI">
-      <HintPath>_Other\binaries\NativeUI.dll</HintPath>
+      <HintPath>..\referencias\NativeUI.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="ScriptHookVDotNet3">
-      <HintPath>..\Binaries\ScriptHookVDotNet3.6.0\ScriptHookVDotNet3.dll</HintPath>
+      <HintPath>..\referencias\ScriptHookVDotNet3.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -96,10 +99,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="SelfCheck.cs" />
     <Compile Include="Common\Utils.cs" />
-    <Compile Include="Translator.cs" />
-    <Compile Include="Updater.cs" />
     <Compile Include="WavePlayer\WavePlayer.cs" />
   </ItemGroup>
   <ItemGroup>

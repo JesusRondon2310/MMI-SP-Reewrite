@@ -1,19 +1,25 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using System.Diagnostics;
-using System.Text;
-
-using GTA;
-using GTA.Native;
+﻿using GTA;
 using GTA.Math;
+using GTA.Native;
+using GTA.UI;
+using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace MMI_SP.Common
 {
 
     internal static class Utils
     {
+        public static void ShowNotification(string icon, string title, string message, string description)
+        {
+            // Combina la información en un texto legible
+            string fullMessage = $"{icon} {title}: {message}";
+            Notification.PostTicker(fullMessage, isImportant: false);
+        }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         internal static string GetCurrentMethod(int offset = 0)
@@ -23,6 +29,7 @@ namespace MMI_SP.Common
             
             return $"{ className }.{ methodInfo.Name }";
         }
+
 
         internal static string ToHexString(string str)
         {

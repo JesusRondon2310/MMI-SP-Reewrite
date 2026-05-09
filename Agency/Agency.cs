@@ -7,7 +7,6 @@ using MMI_SP.Common;
 
 namespace MMI_SP.Agency
 {
-    using T = Translator;
 
     class Agency : Script
     {
@@ -102,34 +101,32 @@ namespace MMI_SP.Agency
         /// </summary>
         private void DisplayAgencyThisFrame()
         {
-            if (Game.Player.Character.Position.DistanceTo(_position) < 4.0)
+            // Guard clause: solo actuar si el jugador está cerca
+            if (Game.Player.Character.Position.DistanceTo(_position) >= 4.0) return;
+            // Guard clause: ignorar si está en un vehículo
+            if (Game.Player.Character.IsInVehicle()) return;
+
+            if (Game.Player.Wanted.WantedLevel > 0)
             {
-                if (!Game.Player.Character.IsInVehicle())
-                    if (Game.Player.WantedLevel > 0)
-                    {
-                        GTA.UI.Screen.ShowHelpTextThisFrame(T.GetString("AgencyEntryWanted"));
-                    }
-                    else
-                    {
-                        GTA.UI.Screen.ShowHelpTextThisFrame(T.GetString("AgencyEntry"));
-                        if (Game.IsControlJustReleased(Control.Context))
-                        {
-                            try
-                            {
-                                EnterAgency();
-                            }
-                            catch (Exception ex)
-                            {
-                                Logger.Exception(ex);
-                                GTA.UI.Notification.Show("MMI-SP: Error while creating the office.");
+                GTA.UI.Screen.ShowHelpTextThisFrame("No puedes entrar con nivel de búsqueda.");
+                return;
+            }
 
-                                ErrorCancelAgency();
+            // Caso principal: sin búsqueda y a pie
+            GTA.UI.Screen.ShowHelpTextThisFrame("Presiona ~y~E~w~ para entrar a la oficina de Mors Mutual.");
+            if (!Game.IsControlJustReleased(Control.Context)) return;
 
-                                _menuMMI.Reset();
-                                _menuMMI.Show();
-                            }
-                        }
-                    }
+            try
+            {
+                EnterAgency();
+            }
+            catch (Exception ex)
+            {
+                Logger.Exception(ex);
+                GTA.UI.Notification.PostTicker("MMI-SP: Error al crear la oficina.", false);
+                ErrorCancelAgency();
+                _menuMMI.Reset();
+                _menuMMI.Show();
             }
         }
 
@@ -152,18 +149,14 @@ namespace MMI_SP.Agency
         private void CreateMenuMMI()
         {
             _menuMMI = new MenuMMI();
-            _menuMMI.Mainmenu.OnMenuClose += (sender) =>
+            _menuMMI.OnMainMenuClosed(() =>
             {
-                if (_office.itemsCollection.Type == ItemsManager.CollectionType.Night)
-                {
-                    _office.NpcSay(DialogueManager.SpeechType.OfficeNaughtyBye);
-                }
-                else
-                {
+                if (_office != null)
                     _office.NpcSay(DialogueManager.SpeechType.OfficeBye);
-                }
                 ExitAgency();
-            };
+            });
+            _menuMMI.Create();
+            _menuMMI.Show();
         }
 
         private void EnterAgency()

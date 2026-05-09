@@ -443,7 +443,6 @@ namespace MMI_SP
 
                         if (mode == Multiplier.Insurance) multiplier = Config.InsuranceMult;
                         else if (mode == Multiplier.Recover) multiplier = Config.RecoverMult;
-                        else if (mode == Multiplier.Stolen) multiplier = Config.StolenMult;
 
                         return (int)(cost * multiplier);
                     }
@@ -478,7 +477,7 @@ namespace MMI_SP
             // Remove the persistence of the vehicle and eventual Blip
             foreach (Vehicle veh in World.GetAllVehicles())
             {
-                if (Utils.GetVehicleIdentifier(veh) == vehIdentifier)
+                if (Utils.Vehicle.GetVehicleIdentifier(veh) == vehIdentifier)
                 {
                     if (veh.AttachedBlip != null) veh.AttachedBlip.Delete();
                     veh.IsPersistent = false;
@@ -507,7 +506,7 @@ namespace MMI_SP
                     Blip vehBlip = AddVehicleBlip(veh);
 
                     // Update DB status
-                    SetVehicleStatusToDB(Utils.GetVehicleIdentifier(veh), "Alive");
+                    SetVehicleStatusToDB(Utils.Vehicle.GetVehicleIdentifier(veh), "Alive");
 
                     Raise_VehicleHasBeenRecovered(this, veh, vehBlip);
                 }
@@ -543,7 +542,7 @@ namespace MMI_SP
         /// <returns></returns>
         internal bool IsVehicleInDB(Vehicle veh)
         {
-            return IsVehicleInDB(Utils.GetVehicleIdentifier(veh));
+            return IsVehicleInDB(Utils.Vehicle.GetVehicleIdentifier(veh));
         }
         internal bool IsVehicleInDB(string vehIdentifier)
         {
@@ -618,7 +617,6 @@ namespace MMI_SP
             float multiplier = 1.0f;
             if (mode == Multiplier.Insurance) multiplier = Config.InsuranceMult;
             else if (mode == Multiplier.Recover) multiplier = Config.RecoverMult;
-            else if (mode == Multiplier.Stolen) multiplier = Config.StolenMult;
 
             int price = 0;
             price += Price.GetVehicleModelPrice(veh);
@@ -634,7 +632,7 @@ namespace MMI_SP
         /// <returns></returns>
         public static bool IsVehicleInsured(Vehicle veh)
         {
-            return IsVehicleInsured(Utils.GetVehicleIdentifier(veh));
+            return IsVehicleInsured(Utils.Vehicle.GetVehicleIdentifier(veh));
         }
         public static bool IsVehicleInsured(string vehIdentifier)
         {
@@ -775,7 +773,7 @@ namespace MMI_SP
         /// <param name="veh"></param>
         private XElement GenerateVehicleSection(Vehicle veh)
         {
-            string vehIdentifier = Utils.GetVehicleIdentifier(veh);
+            string vehIdentifier = Utils.Vehicle.GetVehicleIdentifier(veh);
 
             XElement vehSection = new XElement(vehIdentifier);
 
@@ -920,7 +918,7 @@ namespace MMI_SP
         /// <param name="veh"></param>
         public void UpdateVehicleToDB(Vehicle veh)
         {
-            string vehIdentifier = Utils.GetVehicleIdentifier(veh);
+            string vehIdentifier = Utils.Vehicle.GetVehicleIdentifier(veh);
 
             if (_dbFile.Element("Vehicles") != null)
             {

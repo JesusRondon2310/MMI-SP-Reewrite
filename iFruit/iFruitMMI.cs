@@ -5,13 +5,12 @@ using GTA;
 
 namespace MMI_SP.iFruit
 {
-    using T = Translator;
-
     class iFruitMMI : Script
     {
         private readonly CustomiFruit _iFruit;
         private MenuMMI _menuiFruit = null;
         private MenuConfig _menuConfig = null;
+        private Action _menuClosedUnsubscribe;
 
         public iFruitMMI()
         {
@@ -39,10 +38,12 @@ namespace MMI_SP.iFruit
                 DialTimeout = 4000, Active = true, Icon = ContactIcon.MP_MorsMutual
             };
             contactMMI.Answered += ContactAnsweredMMI;
-             
-            iFruitContact contactConf = new iFruitContact(T.GetString("ConfigMenuContact"))
+
+            iFruitContact contactConf = new iFruitContact("Configuración MMI")
             {
-                DialTimeout = 0, Active = true, Icon = ContactIcon.MP_FmContact
+                DialTimeout = 0,
+                Active = true,
+                Icon = ContactIcon.MP_FmContact
             };
             contactConf.Answered += ContactAnsweredConfig;
 
@@ -83,10 +84,10 @@ namespace MMI_SP.iFruit
             }
         }
 
-        internal void MenuClosed(object sender)
+        internal void MenuClosed()
         {
             MMISound.Play(MMISound.SoundFamily.Bye);
-            _menuiFruit.Mainmenu.OnMenuClose -= MenuClosed;
+            _menuClosedUnsubscribe?.Invoke();
         }
 
 
@@ -96,16 +97,12 @@ namespace MMI_SP.iFruit
             {
                 _menuiFruit.Reset(true);
                 _menuiFruit.Show();
-                _menuiFruit.Mainmenu.OnMenuClose += MenuClosed;
+                _menuClosedUnsubscribe = _menuiFruit.OnMainMenuClosed(MenuClosed);
             }
             catch (Exception ex)
             {
                 Logger.Exception(ex);
-                GTA.UI.Notification.Show("MMI-SP: Error with module NativeUI!");
             }
-
-            MMISound.Play(MMISound.SoundFamily.Hello);
-            _iFruit.Close(2000);
         }
 
 

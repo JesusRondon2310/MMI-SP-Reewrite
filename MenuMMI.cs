@@ -86,11 +86,15 @@ namespace MMI_SP
         }
 
         /// <summary>
-        /// Permite suscribirse al cierre del menú principal.
+        /// Suscribe un callback al evento de cierre del menú principal.
+        /// Devuelve una acción que, al ejecutarse, elimina la suscripción.
         /// </summary>
-        public void OnMainMenuClosed(Action callback)
+        public Action OnMainMenuClosed(Action callback)
         {
-            _mainMenu.OnMenuClose += (sender) => callback();
+            // Usar el delegado específico de NativeUI
+            MenuCloseEvent handler = (sender) => callback();
+            _mainMenu.OnMenuClose += handler;
+            return () => _mainMenu.OnMenuClose -= handler;
         }
 
         // -------------------------------------------------------
