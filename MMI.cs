@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Drawing;
 
 using GTA;
-
-
-/*
-    Update assembly version before release!
-*/
 
 namespace MMI_SP
 {
@@ -33,12 +27,8 @@ namespace MMI_SP
         {
             // Reset log file
             Logger.ResetLogFile();
-            
+
             Logger.Debug("Waiting for game to be loaded...");
-            while (Game.IsLoading)
-            {
-                Yield();
-            }
             Logger.Debug("Game is loaded");
 
             Logger.Debug("Waiting for screen to fade...");
@@ -52,24 +42,6 @@ namespace MMI_SP
             Logger.Debug("Loading configuration values...");
             Config.Initialize();
             Logger.Debug("Configuration values loaded");
-
-
-            Logger.Debug("Checking prerequisites...");
-            if (SelfCheck.Check())
-            {
-                Logger.Debug("Prerequisites are installed");
-
-                Logger.Debug("Checking for updates...");
-                if (Config.CheckForUpdate)
-                {
-                    // Async check for updates
-                    Updater.CheckForUpdate();
-                }
-            }
-            else
-            {
-                Logger.Debug("Prerequisites are not installed");
-            }
 
             _initialized = true;
 
