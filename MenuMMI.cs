@@ -216,13 +216,14 @@ namespace MMI_SP
         /// </summary>
         private void InsureVehicle(Vehicle veh)
         {
-            if (OpenedFromiFruit) MMISound.Play(MMISound.SoundFamily.Okay);
+            if (OpenedFromiFruit)
+            {
+                InsuranceManager.Instance.InsureVehicle(veh);
+                PlaySuccess("Vehículo asegurado correctamente.");
+                _itemInsure.Enabled = false;
 
-            InsuranceManager.Instance.InsureVehicle(veh);
-            Utils.ShowNotification(NotifyChar, NotifyTitle, "Vehículo asegurado correctamente.", "");
-            _itemInsure.Enabled = false;
-
-            RefreshAffectedMenusAfterInsurance();
+                RefreshAffectedMenusAfterInsurance();
+            }
         }
 
         /// <summary>
@@ -314,7 +315,7 @@ namespace MMI_SP
 
                     if (OpenedFromiFruit) InsuranceManager.Instance.RecoverVehicle(vehID);
                     PlaySuccess("Vehículo recuperado correctamente.");
-                    RebuildMenuRecover();
+                    RefreshAllMenus();
                 };
             }
         }
