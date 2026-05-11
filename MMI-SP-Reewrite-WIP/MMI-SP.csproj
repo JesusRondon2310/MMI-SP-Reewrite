@@ -1,0 +1,199 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{31807E03-862E-4F2B-93F6-E98D2E07272B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MMI_SP</RootNamespace>
+    <AssemblyName>MMI-SP</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NativeUI">
+      <HintPath>..\referencias\NativeUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ScriptHookVDotNet3">
+      <HintPath>..\referencias\ScriptHookVDotNet3.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Agency\Entrance.cs" />
+    <Compile Include="Agency\Cutscenes.cs" />
+    <Compile Include="Agency\MainMenu\Action.cs" />
+    <Compile Include="Agency\MainMenu\InsuredVehicles.cs" />
+    <Compile Include="Agency\MainMenu\Manager.cs" />
+    <Compile Include="Agency\MainMenu\Reset.cs" />
+    <Compile Include="Agency\Office\CutsceneManager.cs" />
+    <Compile Include="Agency\Office\EntryManager.cs" />
+    <Compile Include="Agency\Office\OfficeManager.cs" />
+    <Compile Include="Debug\Logger.cs" />
+    <Compile Include="Agency\MainMenu\Create.cs" />
+    <Compile Include="Agency\Office\Ambient.cs" />
+    <Compile Include="Agency\ItemsManager.cs" />
+    <Compile Include="Debug\Debug.cs" />
+    <Compile Include="Debug\Trailer.cs" />
+    <Compile Include="Helpers\Notification.cs" />
+    <Compile Include="Helpers\Screen.cs" />
+    <Compile Include="Helpers\Diagnostics.cs" />
+    <Compile Include="Helpers\VehicleIdentifier.cs" />
+    <Compile Include="Insurance\Manager\Calculator.cs" />
+    <Compile Include="Insurance\Manager\Core.cs" />
+    <Compile Include="Insurance\Manager\Insurer.cs" />
+    <Compile Include="Insurance\Manager\Repository.cs" />
+    <Compile Include="MMI.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="WavePlayer\WavePlayer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\default.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\banner.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\config.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\End_ByeNow.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\End_DriveSafe.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\End_NiceDay.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\End_NiveDay2.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\End_SoLong.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\End_StaySafe.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Mid_ICanDoThat.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Mid_ILookIntoit.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Mid_IWillDoMyBest.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Mid_Okay.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Mid_Sure.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Mid_WeCanDoThat.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Mid_WeCanHandleThat.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\NoMoney.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Start_HelloThisIsMMI.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Start_MMIExpectUnexpected.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Start_MMIHereToHelp.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Start_MMIHowCanHelp.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Start_MMIHowCanIBeService.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Start_MMIPeaceOfMind.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Start_MMITrust.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Start_WhatCanIDo.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\Start_WhatCanIHelpYouWith.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="resources\insurance.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>
