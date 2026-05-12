@@ -1,12 +1,12 @@
 ﻿using System;
 using GTA;
-//using MMI_SP.Agency.Office.Ambient;
+using MMI_SP.Agency.Office.Ambient;
 
 namespace MMI_SP.Agency.Office
 {
     internal class Manager
     {
-        private Ambient.Handler _office;
+        private Handler _office;
         private TimeSpan _officeLastCreation = new TimeSpan(0);
         private ItemsManager.OfficeItemsCollection _officeLastCollection = new ItemsManager.OfficeItemsCollection();
         private int _timerRandomSpeech;
@@ -21,11 +21,11 @@ namespace MMI_SP.Agency.Office
                 _officeLastCreation.Hours == World.CurrentTimeOfDay.Hours &&
                 _officeLastCollection.Count > 0)
             {
-                _office = new Ambient.Handler(_officeLastCollection);
+                _office = new Handler(_officeLastCollection);
             }
             else
             {
-                _office = new Ambient.Handler();
+                _office = new Handler();
                 _officeLastCreation = World.CurrentTimeOfDay;
                 _officeLastCollection?.DeleteItems();
                 _officeLastCollection = new ItemsManager.OfficeItemsCollection(_office.ItemsCollection);

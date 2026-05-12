@@ -8,23 +8,12 @@ namespace MMI_SP.Agency.Office.Entry
 {
     internal static class EnterSequence
     {
-        public static void Execute(UI menu, CutsceneManager cutscene, Office.Manager office)
+        public static void Execute(UI menu, CutsceneManager cutscene, Office.Manager office, Action onClose)
         {
-            Logger.Debug("EnterSequence: Iniciando secuencia de entrada...");
-            // El menú se reconstruye fuera, en Manager.Enter()
+            Logger.Debug("Reset the menu");
             try
             {
-                cutscene.Enter();
-                Cutscenes.EnteringAgency();
-
-                Game.Player.Character.Position = Config.PlayerPos;
-                Game.Player.Character.IsPositionFrozen = true;
-
-                Function.Call(Hash.LOAD_SCENE, Config.PlayerPos.X,
-                              Config.PlayerPos.Y, Config.PlayerPos.Z);
-                Screen.UIHandler(1000);
-
-                menu.Show();
+                menu.RebuildMenu(onClose);
             }
             catch (Exception ex)
             {
@@ -34,7 +23,40 @@ namespace MMI_SP.Agency.Office.Entry
                 return;
             }
 
+            Logger.Debug("Entering cutscene");
+            cutscene.Enter();
+            Cutscenes.EnteringAgency();
+
+            Logger.Debug("Teleport the player in the office");
+            Game.Player.Character.Position = Config.PlayerPos;
+            Game.Player.Character.IsPositionFrozen = true;
+
+            Logger.Debug("Force load office");
+            Function.Call(Hash.LOAD_SCENE, Config.PlayerPos.X, Config.PlayerPos.Y, Config.PlayerPos.Z);
+            Logger.Debug("Wait until everything is loaded");
+
+            Screen.UIHandler(1000);
+            Logger.Debug("Open menu");
+
+            try
+            {
+                menu.Show();
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Error: EnterAgency - " + e.Message);
+                GTA.UI.Notification.Show("MMI-SP: Error with module NativeUI!");
+                CancelSequence.Execute(menu, cutscene, null, false);
+                return;
+            }
+
+            Logger.Debug("Office creation");
             office.CreateOffice();
+
+            Logger.Debug("_office.itemsCollection:");
+            Logger.Debug("type=" + office.CurrentCollectionType);
+            Logger.Debug("count=" + office.CurrentCollectionCount);
+
             office.StartSpeechTimer();
         }
     }

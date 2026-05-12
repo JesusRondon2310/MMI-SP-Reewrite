@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using static MMI_SP.Agency.ItemsManager;
+﻿using static MMI_SP.Agency.ItemsManager;
 
 namespace MMI_SP.Agency.Office.Ambient
 {
@@ -21,7 +20,7 @@ namespace MMI_SP.Agency.Office.Ambient
 
         internal void CleanOffice()
         {
-            Ambient.CleanUp.Execute();
+            CleanUp.Execute();
         }
     }
 }

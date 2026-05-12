@@ -19,8 +19,7 @@ namespace MMI_SP.Agency.Office.Entry
 
         public void Enter()
         {
-            EnterSequence.Execute(_menu, _cutscene, _office);
-            _menu.RebuildMenu(Exit);
+            EnterSequence.Execute(_menu, _cutscene, _office, Exit);
         }
 
         public void Exit()
