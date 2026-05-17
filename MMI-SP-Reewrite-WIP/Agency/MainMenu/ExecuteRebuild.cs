@@ -12,12 +12,12 @@ namespace MMI_SP.Agency.MainMenu
         {
             mainMenu.Clear();
 
-            // Banner (antes en Interface.Build, ahora aquí)
             if (System.IO.File.Exists(Config.BannerImage))
                 mainMenu.SetBannerType(Config.BannerImage);
 
             Insure.Build(mainMenu);
             Cancel.Build(mainMenu, pool);
+            Recover.Build(mainMenu, pool);
             pool.RefreshIndex();
         }
         

@@ -16,7 +16,7 @@ namespace MMI_SP.Agency.Office.Ambient
             if (pickResult is Err<OfficeItemsCollection> err)
             {
                 // Si no se pudo elegir colección, se usa Empty y se notifica
-                Logger.Error(err.Message);
+                Logger.Error(err.FullMessage);
                 ItemsCollection = new OfficeItemsCollection(Empty);
                 return;
             }
@@ -25,7 +25,7 @@ namespace MMI_SP.Agency.Office.Ambient
             var buildResult = Builder.Build(ItemsCollection);
             if (buildResult is Err<bool> buildErr)
             {
-                Logger.Error(buildErr.Message);
+                Logger.Error(buildErr.FullMessage);
                 CleanUp.Execute();
             }
         }
@@ -36,7 +36,7 @@ namespace MMI_SP.Agency.Office.Ambient
             var buildResult = Builder.Build(ItemsCollection);
             if (buildResult is Err<bool> buildErr)
             {
-                Logger.Error(buildErr.Message);
+                Logger.Error(buildErr.FullMessage);
                 CleanUp.Execute();
             }
         }

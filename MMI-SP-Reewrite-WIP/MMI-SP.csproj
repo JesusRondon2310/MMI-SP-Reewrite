@@ -105,10 +105,16 @@
     <Compile Include="Helpers\Screen.cs" />
     <Compile Include="Helpers\Diagnostics.cs" />
     <Compile Include="Helpers\VehicleIdentifier.cs" />
+    <Compile Include="Agency\MainMenu\Recover.cs" />
+    <Compile Include="Agency\MainMenu\SubMenus\RecoverHandler.cs" />
     <Compile Include="Insurance\Manager\Calculator.cs" />
     <Compile Include="Insurance\Manager\Core.cs" />
     <Compile Include="Insurance\Manager\Insurer.cs" />
     <Compile Include="Insurance\Manager\Repository.cs" />
+    <Compile Include="Insurance\Manager\VehicleData.cs" />
+    <Compile Include="Insurance\Manager\VehicleDataFactory.cs" />
+    <Compile Include="Insurance\Recover\Coordinates.cs" />
+    <Compile Include="Insurance\Recover\Manager.cs" />
     <Compile Include="MMI.cs" />
     <Compile Include="PatternMatching\Option.cs" />
     <Compile Include="PatternMatching\Result.cs" />

@@ -32,24 +32,21 @@ namespace MMI_SP.Agency.MainMenu.Buttons
             string description,
             string itemDescription,
             Action<string> onVehicleSelected,
-            string emptyMessage)
+            string emptyMessage,
+            bool showDestroyed = false)
         {
-            // Usar el método disponible en NativeUI (como Bob74)
             UIMenu submenu = pool.AddSubMenu(parentMenu, title, description);
 
-            // Si la descripción del ítem es diferente, la cambiamos
             if (!string.IsNullOrEmpty(itemDescription) && itemDescription != description)
             {
                 UIMenuItem lastItem = parentMenu.MenuItems[parentMenu.MenuItems.Count - 1];
                 lastItem.Description = itemDescription;
             }
 
-            // Configurar banner
             if (File.Exists(Config.BannerImage))
                 submenu.SetBannerType(Config.BannerImage);
 
-            // Poblar con los vehículos
-            Fill.SubMenu(submenu, onVehicleSelected, emptyMessage);
+            Fill.SubMenu(submenu, onVehicleSelected, emptyMessage, showDestroyed);
             return submenu;
         }
     }

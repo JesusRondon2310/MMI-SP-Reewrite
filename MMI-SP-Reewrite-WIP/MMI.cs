@@ -47,7 +47,7 @@ namespace MMI_SP
                     break;
 
                 case Err<bool> err:
-                    Logger.Error($"InsuranceManager initialization failed: {err.Message}");
+                    Logger.Error($"InsuranceManager initialization failed: {err.FullMessage}");
                     Notification.Show("CHAR_CARSITE", "Mors Mutual", "Error initializing MMI‑SP. Check the log.", "");
                     break;
             }

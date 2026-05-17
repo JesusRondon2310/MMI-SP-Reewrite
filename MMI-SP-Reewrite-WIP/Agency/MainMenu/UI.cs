@@ -33,11 +33,8 @@ namespace MMI_SP.Agency.MainMenu
         internal bool IsAnyMenuVisible()
         {
             if (_mainMenu != null && _mainMenu.Visible) return true;
-
-            // Verificar si CancelHandler tiene submenú y está visible
-            if (CancelHandler.Instance != null && CancelHandler.Instance.Submenu != null &&
-                CancelHandler.Instance.Submenu.Visible) return true;
-
+            if (CancelHandler.Instance?.Submenu?.Visible == true) return true;
+            if (RecoverHandler.Instance?.Submenu?.Visible == true) return true;
             return false;
         }
 
@@ -46,6 +43,8 @@ namespace MMI_SP.Agency.MainMenu
         internal void Update() => _pool.ProcessMenus();
 
         internal bool IsMainMenuVisible() => _mainMenu != null && _mainMenu.Visible;
-        internal bool IsSubmenuVisible() => CancelHandler.Instance?.Submenu?.Visible ?? false;
+        internal bool IsSubmenuVisible()
+            => (CancelHandler.Instance?.Submenu?.Visible ?? false)
+            || (RecoverHandler.Instance?.Submenu?.Visible ?? false);
     }
 }
