@@ -28,7 +28,7 @@ namespace MMI_SP.Insurance
                 false,
                 (int)veh.Mods.WindowTint,
                 (int)veh.Mods.WheelType,
-                (int)veh.Mods.WheelColor,
+                0,
                 smoke.R, smoke.G, smoke.B,
                 veh.Position.X, veh.Position.Y, veh.Position.Z,
                 veh.Heading));

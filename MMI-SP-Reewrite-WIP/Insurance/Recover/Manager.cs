@@ -71,7 +71,6 @@ namespace MMI_SP.Insurance.Recover
             veh.Mods.SecondaryColor = (VehicleColor)data.SecondaryColor;
             veh.Mods.WindowTint = (VehicleWindowTint)data.WindowTint;
             veh.Mods.WheelType = (VehicleWheelType)data.WheelType;
-            veh.Mods.WheelColor = (VehicleColor)data.WheelColor;
 #pragma warning restore CS0618
             veh.Mods.TireSmokeColor = Color.FromArgb(data.TireSmokeR, data.TireSmokeG, data.TireSmokeB);
         }
