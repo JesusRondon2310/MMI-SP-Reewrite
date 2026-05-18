@@ -1,90 +1,55 @@
 # MMI-SP
-_A GTA V mod_  
+_Un mod para GTA V_
 __Mors Mutual Insurance - Single Player__
 
-[![Trailer video](https://user-images.githubusercontent.com/9498543/162617439-42459c98-9915-4a43-b476-c339192e307a.png)](https://www.youtube.com/watch?v=WATdK3aOdGk)
+### Basado en el trabajo original de Bob74 (2022)
 
+[![Vídeo del tráiler](https://user-images.githubusercontent.com/9498543/162617439-42459c98-9915-4a43-b476-c339192e307a.png)](https://www.youtube.com/watch?v=WATdK3aOdGk)
 
-Tired of losing your 500k$ fully modded vehicle because you went on a mission and it disappeared? Or because you wanted to see if it was waterproof and (unfortunately) it wasn’t?
-Don’t wait any longer and insure your vehicle now at Mors Mutual insurance!
+¿Cansado de perder tu vehículo tuneado de $500,000 porque se te quedó por una misión o decidiste probar si era sumergible? ¡No esperes más y asegura tu vehículo ahora en Mors Mutual Insurance!
 
-Download is available here : https://www.gta5-mods.com/scripts/mors-mutual-insurance-single-player-mmi-sp
+La descarga de la versión W.I.P. está disponible [aquí](https://github.com/JesusRondon2310/MMI-SP-Rewrite-WIP/releases/tag/0.3) 
 
-# Installation note
-Don't forget to add the "Modify" permission to your user on your PC to allow ScriptHook and the mod to write log files:
+# Historial de Cambios
 
-![image](https://user-images.githubusercontent.com/9498543/162616728-39280270-46ee-4db1-80b0-1838b25e5223.png)
+### Alpha 0.3.4 (18/05/2026)
+- **Refactorización final y Patrón de Coincidencia.** Se modularizó la lógica del asegurador, se mejoró el manejo de errores en el monitoreo de vehículos y se unificaron las funciones de fábrica.
 
+### Alpha 0.3.3 (18/05/2026)
+- **Corrección de errores críticos.** Se arregló un error que provocaba salir de la oficina al recuperar un vehículo, se estabilizó el estado "Destruido" y la actualización del submenú de recuperación.
 
-# Changelog
-1.2.1 (10/04/2022)
-- Fixed persistence issue.
-- Released (ugly) source code.
+### Alpha 0.3.2 (17/05/2026)
+- **Módulo de Recuperación y su menú.** Se añadió la funcionalidad de reclamar vehículos destruidos a través de un nuevo módulo y submenú. El vehículo aparecerá en el depósito.
 
-1.2.0a(25/02/2018)
-- Fixed an issue where insuring a vehicle with the office without having used the phone before lead to a crash.
-- Fixed a bug where recovered vehicle blip wouldn't disappear if you changed its plate number before getting into the vehicle.
-- Fixed missing translations.
+### Alpha 0.3.1 (17/05/2026)
+- **Refactorización inicial y preparación.** Se reescribió gran parte de la lógica del seguro usando patrones funcionales para hacer el código más robusto y fácil de mantener.
 
-1.2.0 (24/02/2018)
-- You can edit the config file in game using a phone contact! Settings will take effect immediately unless specified otherwise.
-- License plate number can now be changed! Go to the office or use you phone if you've enabled this choice.
-- Larger choice of insurable vehicles. Barely everything besides trains and main character's vehicles.
-- Insured vehicles are now persistent by default. They won't despawn until they dies. This setting can be changed.
-- You can now select available choices in your phone menu (insure a car, report as stolen, etc.). Edit the mods settings to enable a choice.
-- The menus are a bit more friendly (some choices will disappear when needed instead of being grayed out).
-- Insured icon is now only displayed on vehicles that can be insured.
-- Added code related to bring helicopters and planes to you since these vehicles are now insurable.
-- Log file (MMI-SP.log) is reset at launch.
-- Readjusted prices. Remember you can tweak the price using the mod settings.
-- Fixed an issue where the mod could crash if another mod spawns vehicles with badly formated color for tire or neon.
-- Fixed an issue where you could ask MMI to bring you another character's vehicle under some circumstances.
+### Alpha 0.3.0 (16/05/2026)
+- **Persistencia Real.** ¡Tus coches sobreviven al cerrar y cargar la partida! Se añadió un sistema para guardar la ubicación exacta y recrear los vehículos asegurados al iniciar el juego.
 
-1.1.4a(13/02/2018)
-- Ability to disable updates check and notifications when a prerequisite is missing or outdated
-- Better Visual C++ version detection
+### Alpha 0.2.3 (15/05/2026)
+- Migración a `Result<T>` y pattern matching en todos los métodos críticos.
+- Resueltos 15 errores de compilación por APIs obsoletas de SHVDN3 (`CS0618`).
+- Base de datos JSON con Newtonsoft (`db.json`).
 
-1.1.4 (12/02/2018)
-- The driver now stops and leaves the car when he is close to the player instead of only when he has reached his destination
-- The mod checks if all prerequisites are installed and tells you if anything is missing or outdated
-- Clearer error messages when missing prerequisites and less crash
-- Now using SHVDN-Extender
+### Alpha 0.2.1 (14/05/2026)
+- Refactorización inicial aplicando SOM (Sistema de Orquestación Modular).
+- Eliminados archivos obsoletos (`InsuredVehicles.cs`, `Action.cs`, `Create.cs` duplicados).
+- Creadas las fábricas `Buttons/Build.cs` y `Buttons/Fill.cs`.
 
-1.1.3a(10/02/2018)
-- Hot fix: Stop removing all blips from the vehicle you enter
+### Alpha 0.2.0 (13/05/2026)
+- Menú principal con los botones "Asegurar" y "Cancelar seguro".
+- Solucionados bugs de salida de oficina, descripciones cortadas, orden de botones y `NullReferenceException` en NativeUI.
 
-1.1.3 (10/02/2018)
-- Added a "safe mode" when entering the office. If there is a problem with your game at this moment, the office won't be displayed but the menu will appear and the mod will still work.
-- MMI phone contact's volume is adjustable via config file
+### Alpha 0.1.0 (12/05/2026)
+- Migración del código original de Bob74 a SHVDN3.
+- Entrada a la oficina y estructura básica del mod.
 
-1.1.2a(31/01/2018)
-- MMI can now bring you your insured vehicle if it exists on the map (you will need to set PersistentInsuredVehicles to true in the config file if you want to be able to let your vehicle somewhere and later ask MMI to bring it to you)
-- Persistent vehicles are now able to despawn when destroyed
+---
 
-1.1.2 (30/01/2018)
-- Fixed a bug where convertible vehicles couldn't be spawn
-- Fixed Tornado roof not being saved properly
-- Now the phone will close shortly after the MMI menu appears (NativeUI & the phone uses the same controls. It made you browse the phone while you were browsing the menu)
-- The driver will be a bit nicer with your car.
-- Updated iFruitAddon2
+## Notas de Instalación
+Recuerda dar los permisos de "Modificar" a tu usuario en la carpeta del juego para que ScriptHook y el mod puedan funcionar correctamente.
 
-1.1.1 (28/01/2018)
-- Detailed config file
-- Fixed a crash when some mod's files were missing
-- Fixed an issue when you wanted MMI to bring you many vehicles at the same time
-- Added a timeout if the driver gets lost, the vehicle will return to the depot and you will be refund
-- Updated iFruitAddon2
-
-1.1.0 (27/01/2018)
-- Licence Plate Randomizer not needed anymore
-- You can now ask MMI to bring your freshly recovered vehicle to you!
-- Added Update detection (from an online Github file)
-- Menu are updated when they needs to. No longer need to close and open menu again under certain circumstances
-- Fixed some missing texts
-
-1.0.1 (26/01/2018)
-- Fixed an issue with the vehicle recovery description in the menus.
-- Force persistence of office NPC and Props
-
-1.0.0 (26/01/2018)
-- Initial release
+## Créditos
+*   **Desarrollo y Arquitectura:** [JesusRondon2310](https://github.com/JesusRondon2310)
+*   **Colaborador:** [Ricardo Vera](https://github.com/ricardovera76)
